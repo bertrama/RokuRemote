@@ -1,0 +1,377 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/KFhtml4/loose.dtd">
+<!--
+Roku Remote web page for Google Chrome web browser
+Copyright 2010 Ben Galliart <bgallia@gmail.com>. All rights reserved.
+
+Redistribution and use in source and binary forms, with or without 
+modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, 
+this list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice, 
+this list of conditions and the following disclaimer in the documentation 
+and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR IMPLIED
+WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF 
+MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO 
+EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; 
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND 
+ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT 
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF 
+THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<html><head>
+<script type="text/javascript">
+IPaddress = '192.168.1.100';
+IconSize = 100;
+// document.onkeypress = keyCatcher;
+function initWebPage() {
+if (localStorage.RokuIPaddress)
+  IPaddress = localStorage.RokuIPaddress;
+else
+  document.getElementById('Instructions').style.display = "";
+if (localStorage.RokuRemoteIconMode)
+  if (localStorage.RokuRemoteIconMode == 'button')
+    toggleIcons();
+if (localStorage.RokuRemoteIconSize) {
+  IconSize = localStorage.RokuRemoteIconSize;
+  setIconSize();
+}
+IPaddressForm = document.forms[0].elements['IPaddress'];
+IPaddressForm.value = IPaddress;
+IconSizeForm = document.forms[0].elements['IconSize'];
+IconSizeForm.value = IconSize;
+}
+function setIP(form) {
+IPaddress = form.IPaddress.value;
+localStorage.RokuIPaddress = IPaddress;
+}
+function setIconSizeForm(form) {
+IconSize = form.IconSize.value;
+localStorage.RokuRemoteIconSize = IconSize;
+setIconSize();
+}
+function setIconSize() {
+elements = document.getElementsByName('remote');
+for (loop=0; loop<elements.length; loop++) {
+  elements[loop].style.width  = (56 * IconSize / 100) + 'px';
+  elements[loop].style.height = (32 * IconSize / 100) + 'px';
+}
+elements = document.getElementsByName('remotewide');
+for (loop=0; loop<elements.length; loop++) {
+  elements[loop].style.width  = (84 * IconSize / 100) + 'px';
+  elements[loop].style.height = (32 * IconSize / 100) + 'px';
+}
+}
+function keypress(key) {
+client = new XMLHttpRequest();
+client.open('POST', 'http://' + IPaddress + ':8060/keypress/' + key, false);
+try { client.send(); }
+catch(e) { ; }
+}
+function keypressnew(key) {
+rokupostform = document.getElementById('rokupost');
+rokupostform.setAttribute('action', 'http://' + IPaddress + ':8060/keypress/' + key);
+rokupostform.submit();
+}
+function toggleIcons() {
+elements = document.getElementsByName('remote');
+if (elements[0].getAttribute('type') == 'image') {
+  newtype = 'button';
+  localStorage.RokuRemoteIconMode = 'button';
+} else {
+  newtype = 'image';
+  if (localStorage.RokuRemoteIconMode)
+    localStorage.removeItem('RokuRemoteIconMode');
+}
+for (loop=0; loop<elements.length; loop++)
+  elements[loop].setAttribute('type',newtype);
+elements = document.getElementsByName('remotewide');
+for (loop=0; loop<elements.length; loop++) 
+  elements[loop].setAttribute('type',newtype);
+}
+function searchBox(keyEvent) {
+key = String.fromCharCode(keyEvent.keyCode).toLowerCase();
+if ((key >= 'a' && key <= 'z') || (key >= '0' && key <= '9'))
+  keypress('Lit_' + key);
+else switch(keyEvent.keyCode) {
+case   8: keypress('Backspace'); break;
+case  32: keypress('Lit_%20'); break; // Space
+case 186: keypress('Lit_%3B'); break; // ;
+case 187: keypress('Lit_%3D'); break; // =
+case 188: keypress('Lit_%2C'); break; // ,
+case 189: keypress('Lit_%2D'); break; // -
+case 190: keypress('Lit_%2E'); break; // .
+case 191: keypress('Lit_%2F'); break; // /
+case 192: keypress('Lit_%60'); break; // `
+case 219: keypress('Lit_%5B'); break; // [
+case 220: keypress('Lit_%5C'); break; // \
+case 221: keypress('Lit_%5D'); break; // ]
+case 222: keypress('Lit_%27'); break; // '
+// default: keypress('Lit_' + key); alert(keyEvent.keyCode + " " + key);
+}
+}
+function remoteBox(keyEvent) {
+key = String.fromCharCode(keyEvent.keyCode).toLowerCase();
+if (key == '1') keypress('Back');
+else if (key == '2') keypress('Up');
+else if (key == '3') keypress('Home');
+else if (key == 'q') keypress('Left');
+else if (key == 'w') keypress('Select');
+else if (key == 'e') keypress('Right');
+else if (key == 'a') keypress('InstantReplay');
+else if (key == 's') keypress('Down');
+else if (key == 'd') keypress('Info');
+else if (key == 'z') keypress('Rev');
+else if (key == 'x') keypress('Play');
+else if (key == 'c') keypress('Fwd');
+}
+function keyCatcher(keyEvent) {
+key = String.fromCharCode(keyEvent.keyCode);
+alert(keyEvent.keyCode + " " + key);
+}
+function ShowHideSearchKeypad() {
+  SearchKeypadElement = document.getElementById('SearchKeypad');
+  if (SearchKeypadElement.style.display == 'none')
+    SearchKeypadElement.style.display = "";
+  else
+    SearchKeypadElement.style.display = "none";
+}
+function ShowHideInstructions() {
+  InstructionElement = document.getElementById('Instructions');
+  if (InstructionElement.style.display == 'none')
+    InstructionElement.style.display = "";
+  else
+    InstructionElement.style.display = "none";
+}
+</script>
+<meta content="text/html; charset=ISO-8859-1" http-equiv="content-type"><title>Roku Remote</title>
+<link rel="shortcut icon" href="data:image/gif;base64,R0lGODlhEAAQAPEAAAAAAICAgMDAwAAAACH5BAEAAAMALAAAAAAQABAAAAIvnI+pqwIPg1gO2pkqmAE2b0DYoRnaaIpC93yW6L4B5bFbHILIOWjzrrOhGMTioQAAOw==">
+</head>
+<body onload="initWebPage()">
+<div align="center">
+<form name="Setting">
+<input name="IPaddress" size="16" maxlength="16" type="text">
+<input name="button" value="Set IP Address" onclick="setIP(this.form)" type="button"><br>
+<input name="IconSize" size="4" maxlength="4" type="text">%
+<input name="button" value="Set Icon Size" onclick="setIconSizeForm(this.form)" type="button"><br>
+<input name="button" value="Text/Icons" onclick="toggleIcons()" type="button"></form>
+<br>
+<form name="RokuRemote">
+<table summary="Remote">
+<tbody>
+<tr>
+<td colspan="3" align="center"><input name="remotewide" value="Back" onclick="keypress('Back');" type="image" src="data:image/gif;base64,R0lGODlhVAAgAOMMAAAAABgYGB8fHysrKzk5OUxMTFZWVmdnZ3Jycn19fZCQkKSkpLCwsMbGxszMzLCwsCH5BAEKAA8ALAAAAABUACAAAAT+kMlJq704680r6GAojhfwMUKqrmzrvnAsz6kp0Xiu76yN8rsAcLjyEXEBwuA4NDJhwoMjIXzqnFZWYKBwOBTZ6ym8Si4cjS8Zhw0HCulGGryetbNStFxdl92PW11yg3x9MH9DZmh6ewoBj5CRkGuIPG9xg4QKBJydnp0DVVaVO3mEmaipmQwEokykSAVeqpmzXrd7aYVPsDRJmLS6t8PEjlm9vnCMqh2brkfIvgQMy5oD19jZ2JRjVoHVc8+GRd3eAgizmuOH5VkBBsC76+Q3a0nUjfMu0ZZci3T66P2oIwSdvID8EsFDIG5ewkTXAvZoJ1Hiw4qjKGJ0+MGEx48RIEOKHEmypMmTKFOqXMlSZQQAOw==">
+&nbsp;&nbsp;&nbsp;&nbsp;
+<input name="remotewide" value="Home" onclick="keypress('Home');" type="image" src="data:image/gif;base64,R0lGODlhVAAgAOMMAAAAABcXFx0dHS4uLjw8PEhISFdXV2VlZXJycn9/f5SUlKWlpbCwsMTExMnJybCwsCH5BAEKAA8ALAAAAABUACAAAAT+kMlJq704680r6GAojhfwMUKqrmzrvmkgw3QNm5Kt28FQDIGd8HYaGlUBQ8PBKASPRxwKugsmHI5l4yB4UnXSL4+wyDbO2ARQbAuzXTKlGTtfELzvljuPFCCwaAsHWloGM3wre3w9CnMOCkBkjgldiCqKbwEFDI5cQT1XWViQeHmYX0GDc014cYRMTqVip1CggEukcAScaA4IlaZFbAGSZ2h3MAF/xqNrb7RDmoTGDcgvymbMDNazwmJlaNTcLdjMaAmyUd5fjWng1ekxyw4J7b7xQ9BCxAsLBgLvrMkYKE8UFwQM1OATom9fDICA7hBDQBHBgQFd5h2QgXEhw3WWecpgkWiAThYg5RxsBBYsh6WAcVah1OhRnUtEMJPIlEHTkoCGUETC04mGwUyDNY0APfKuQIqSRTH6QepzqZF3DPoxoNYg6wJeKpPmA/nmnUmuZ5estGR1iEhRzLKFw7IWUdsqBbjq3QvJ50+ywwYQGEy4sOHBLO0CHjawsWPHflPgMEG5suXLmDNr3sy5s+fPoEOLBh0BADs=">
+</td></tr><tr><td></td>
+<td align="center"><input name="remote" value="Up" onclick="keypress('Up');" type="image" src="data:image/gif;base64,R0lGODlhOAAgAOMPAAAAABAQEBgYGCIiIi4uLjw8PEFBQU5OTmVlZXV1dXt7e4qKipubm6Wlpa+vr7CwsCH5BAEKAA8ALAAAAAA4ACAAAAT+0MlJq704a6C7/xjAOUJpnmiqrqwqSm0sz+lL0nhej3qv2z5UYBhEAYuCgAFhCCBLx2DgIGkcnMhoL1BoOLyNAjaozQUIjK+aQRj3yrTAYFGtLwbuHFzmVHzBfw4JRXsxAQgUCwR0Xg4IeTSFLFMUbABoag5Xbzw4ShViSQUUYZAxkilnjRKbJZRrbXqdfANpE49CiGp3piuoKH4TgysJdQpJkbMth4l4KnKMXrgzv0lUE2y9SZgTrafKLHQToctdEwvJMDLFrNonr4LuJtUCBAoL3nwHCwkD6TdxdDghQg3ck4P0DuJIqLCguoYIDUL08UKExYsYM2rcyLGjx48FIENqjAAAOw==">
+</td><td></td></tr><tr>
+<td align="center"><input name="remote" value="Left" onclick="keypress('Left');" type="image" src="data:image/gif;base64,R0lGODlhOAAgAOMPAAAAABMTExkZGSgoKDU1NUNDQ0lJSVpaWmVlZXNzc4GBgYuLi5qamqioqLKysrCwsCH5BAEKAA8ALAAAAAA4ACAAAATu0MlJq704a6C7/xjAOUJpnmiqBqzqpqL0zm5gKMgQ0G5M8rwdYpLYAVG+42yXoDCUyBF0NVhUDsZpcnoKEBjXrFbKLdkqjYJ4LOOyDhUGYc3+QZmVha582ioDVRUJAnRcfkBeYBRYhYZkiAUNFQaNZYdLBXFzfD2PNAFDEw0EAJydbUEGFQp7plGoQHBOm64ml58GkqJqtSW3n19hlUq/n4EUg8NAxZ8CTRSsyjTMn6Ca0i/UqWi8lp5lXroT3XW1gFYTC3zaR4AKEwrYMN+cQgwLtOW9ZvzesPumYogYSLCgwYMIEypcyLChw4MRAAA7">
+</td>
+<td align="center"><input name="remote" value="OK" onclick="keypress('Select');" type="image" src="data:image/gif;base64,R0lGODlhOAAgAOMPAAICAhcXFyIiIjQ0NEJCQlFRUV1dXW5ubn5+fo6OjqysrLy8vMvLy9ra2uXl5bCwsCH5BAEKAA8ALAAAAAA4ACAAAAT+UMlJq704a6C7/xjAKUFpnmiqrqwqSm0sz6cQvGQ7FMZxGASbTEAgxIjBEm4lMCgWjIa0wVgkCjoFg4FgDRLRhG2ZKiym6LRisEI4Gm9saqB4OxxY8gmR7k/jKQIJb3AGcwuEcHkjKG5piX54KIKEDoYnA4h/YjeMJgdwaAsHBAM7YGhvbCaUUpYnBJqunJ0wJbGVDQcCIkoBBAqpOSWthSYEDJC0tTkCjlOXKQACwX9yAcWvAQbJrg1dJ2SZlQktAMibrIOuBgDcuQfSngVpRjEJaAxC2QUHUVMMroVjJOBAJQVCWLhLs6pYgzP5CABwQfCZg3Ixzv2TYs+hH3Df8mA4I5dwhUY0Hdf5mRIvZA6DrhBmLLCxQUOVK6kIVOLJQD0Z+ADuwykFAc1KC+yZECfrorlxs9QlYhBv4Z81A215jKYiqKtr2VqWeAZnmZ6jrqjeCCdIWA2V2kzgdABSTwCyUhQYGCBAwIADEL2tIgaXK7Y6f1rapQYJYE1rkwqnQAZpkS2pOVM1MIxNcgqf6ex+euxHgdJGdhrsNGFRjGglAxBoSVNFb4tYUpZFlpKUWQsiPRAgOFCAzUQdBgqUDMRj1Wsa0KP7lk49+gsR2LNr3869u/fv4MOLH889AgA7">
+</td>
+<td align="center"><input name="remote" value="Right" onclick="keypress('Right');" type="image" src="data:image/gif;base64,R0lGODlhOAAgAOMPAAAAABgYGCYmJjMzM0VFRVVVVVtbW29vb3p6eoqKipeXl6SkpLGxsdXV1d7e3rCwsCH5BAEKAA8ALAAAAAA4ACAAAATykMlJq704a6C7/xjAMUJpnmgapGzripLrDolSyPg75mni/AeesAQjDUsMR6PhSBxzxafgoFw6FoOVNBWVUqsOBkG7NXWfgQLT2riVzbttgJC0OoJvwVkaGCyqTE5ve2U+S0xYZYRlX1ZiZEOLcgZMSkpuR5JydD+dBE+am2s/CKBxeSV9f50OBqYxqAJzdZV4madvaWtrmLeweQe7YWNboUKGlViQvkZ8fmBNqMYus9C2g7hCumANBsvF2TkBlGCPsXrhObRXWefov0OrDgrt7tMsBAsM1/bpPAPuUNwLyAOGiIMIEypcyLChw4cQI0pcGAEAOw==">
+</td></tr><tr><td></td>
+<td align="center"><input name="remote" value="Down" onclick="keypress('Down');" type="image" src="data:image/gif;base64,R0lGODlhOAAgAOMKAAAAAB0dHSYmJjIyMkRERFFRUWdnZ3Nzc4GBgZubm7CwsLm5ucnJydvb2+Tk5LCwsCH5BAEKAA8ALAAAAAA4ACAAAAT+UMlJq704a6C7/xjAKUJpnmiqrqwqSm0sz+lL0nhej3qv27SAUCcM4ICywQFBMAYJCMORJ0M4HI3mLEBoXBHOGDK2wDoYg/AqMGA03jfZuGV9OxSDFluB9R7ULHMsA3x2CTEJfQ6HNIJrA2V2fyoBdV4LaY1UMlxedgaAAQZ9DQxamjBBBaQNBWEBBW+yrjmOegeKpkZcDIqgP5s4lndpkIpgPbYyiYYDzF6MycE4xrKRl3k+yjG8ina6PgLb3KukWLTh49yjsg6/4eLTPVZf8CbqMwcKB/b38uGA0v3rZw8fwVoDD2pLqBBYqob9XoiYSLGixYsYM2rcyLGjx4sCEQAAOw==">
+</td><td></td></tr><tr>
+<td colspan="3" align="center"><input name="remotewide" value="Replay" onclick="keypress('InstantReplay');" type="image" src="data:image/gif;base64,R0lGODlhVAAgAOMMAAAAABcXFx4eHi4uLjw8PElJSVdXV2VlZXJycn5+fpOTk6enp7CwsMbGxs3NzbCwsCH5BAEKAA8ALAAAAABUACAAAAT+kMlJq704680r6GAojhfwMUKqrmzrrkEgEMaBIEYxxG/vvybJb/gKDA6LhmPJZCQKAhlxygqiqETZQeloeL/epYIgxU6t5p9Rsfwyme6GoZz2oesu46LLbSgQNglJfEpzeHYnhy57YQwHA1ExMgVsYQ6Gii13mVEJfA4KO3QpMgZxZJwrm4oBBW4JUT6tbgqjmauKlQ4LsWoHhKipArh1AQRuBbY9ugnKeMRpAb9KClgBBl0ODJDC0EOjnoVlzisDDHzBnN4+AwgK7+9gC/AKCdw+usndidbYb4SWmOjrESCcgwPkzKwrYg4gGDC7dsgyiHCfEDOzHD7skq6IQUyk6vhhxPaw5MAfjBqcvCUSIwKNYSqqOfZFYqqFQ8JtRJBQRcFs1YQNa4lRQCVavWTRFCcUp5oBKSP2jAI125WmRKMR2CP1W9UwIG9mjTaggA5nkkqdC9NMaAqnU3j0GECgABJCoJJavOq2RYKAtGy6hcuqQBuIDRDoxXqxLwwC/7ok6NiXcKYDEuoZEOVY1QcToEOLHk26tOnTqFOrXs26tWvWEQAAOw==">
+&nbsp;&nbsp;&nbsp;&nbsp;
+<input name="remotewide" value="Info" onclick="keypress('Info');" type="image" src="data:image/gif;base64,R0lGODlhVAAgAOMLAAAAABwcHB4eHjIyMkBAQFFRUV9fX3BwcIKCgo6Ojp2dnbCwsMPDw9vb2+Xl5bCwsCH5BAEKAA8ALAAAAABUACAAAAT+cMlJq704680r6GAojhfwLUGqrmzrvsKxKMNr33hgSnkfCIKXwUFcBH3I1w6VvB1bCEdjWmtaU8ur6wmVUrXWLDjIdUWnjSoYKV7/fgS16vxdCeJuV9vKHSgaDAdcdGkrBQuABHkse2sHXg4MBXNehQEECkQNDkaLKo1ghJsKioQDAgibaJFlbqBaBKqrDQiZaAcMlZsOB56fJ74DCZqzaLKrkr6/PMqHusbQUoLKy0zKMbnQ2gly1K+LAgnaaAuK1IzA55d/44AGrcrfa8LH45yT6jrpWmUx9e27uKmTZ6VANmPP6kmDt4ZgkgLEpkQyMAyNAVsIE3jb54aQFARhAwCYCmBQFwOGWhwiGbKLFCU0VfxJcaBgI7M8qBgswPeyTgphDGjYtAbOTKVub86pzDMyH7qbTps6rTY1hdSqS91AJFKzKlWvF0F6XWairNmzaNOqXcu2rdu3cOPKnRs3AgA7">
+</td></tr><tr>
+<td align="center"><input name="remote" value="Rewind" onclick="keypress('Rev');" type="image" src="data:image/gif;base64,R0lGODlhOAAgAOMPABcXFx0dHS4uLjs7O0dHR1dXV19fX25ubnh4eIWFhYyMjJ2dnampqbi4uMnJybCwsCH5BAEKAA8ALAAAAAA4ACAAAATskMlJq704a6C7/xjAMUFpnmiqrqwqSm0sz+lL0nhej3qv2z4UYCX68YIlAEFQGwyMsODw4CgMTYCCI3GlAX0AgcLhMFynZG7u+xswyOVheJzuzti4LJxsBrj3anlHXgFUe1V6h4FegzJzh3wGkFt2jo0yC5MODZqLd5ctAm+TnJOellF3ApmQBoaKlTF4jgEIkFaSsGugsgC5cH0EpXW7qWvCwHKrcKe9xmvLcUm1xILPa9RmWL4OCrEtsz8BSzUEA98s4T3oRcU3SPAuvPHw6vRI9vdg8/rr/P3FRAgcSLCgwYMIEypcyLChwQgAOw=="
+</td>
+<td align="center"><input name="remote" value="Play" onclick="keypress('Play');" type="image" src="data:image/gif;base64,R0lGODlhOAAgAOMMABwcHB4eHikpKU1NTVZWVmFhYWpqanNzc4WFhYyMjJ2dnaenp7CwsMPDw8jIyLCwsCH5BAEKAA8ALAAAAAA4ACAAAAT+kMlJq704a6C7/xjAMWJpnmiqrqzEvnCsunJtz+St6/Tux72TQKALGAOpI7KVOwUSDAORtQQMFIus4TRYYBcFZkrAcDgYhekLYTYz1IBE+ww/BUuChaNhXhCqKmwNfG8mcoMOC4B2TSYBenx8iX8rbHt0hnt8iit3Io9mkZIKA4sigm5wh5t1Jp4AoIiiZqQoloSqmommJa+xg8C6DghES6iYJau7nY0loKGiwYlqgriZiJw4SZCSssGFp7rgIsrZKa95msGRZglw1cjkugutvc0i6d3SfraX8XHz6onwpUedJDD14I0DiE3giDHc2qBxqDAXNl4D78GC5CbNGnFCFlkxgxhKSgw5EnOlHIkigIIGBxyiIEDhwAmaE7awRDGkxpIhPXkCffHqh1FXGo8q9aXUaNGmP55C3ZF0qtWrOyIAADs=">
+</td>
+<td align="center"><input name="remote" value="Forward" onclick="keypress('Fwd');" type="image" src="data:image/gif;base64,R0lGODlhOAAgAOMPABMTExwcHCYmJjExMT09PUhISFdXV19fX3BwcIGBgYyMjJqamq2trcPDw8rKyrCwsCH5BAEKAA8ALAAAAAA4ACAAAAT4kMlJq704a6C7/xjAMUFpnmiqrqwqSm0sz+lL0nhej3qv277gDCgsrog5wNEYQNIGBCVKQGA6ZYBEwyAtAQwORFN4jWUd4XHzgFYIuj9eLuFoONzKb93BiPrKLWcNdn0iYIN1XD2ALXSDdlt6j3ZicFhyNIKTDgeHm25JmEOOk4MMpYgLAjiMR6SosHyrmaJYr4gIbKUOCwOWgbVmr3UHko8OCW+hMKykfAWGdZDFi8GBjry+TYfPv0PWLGfIyttovd7fzJl0Byh6yejpNzgEfigDBVbg4ejxrPtM/gAMGEcdQSOtDi4TwbChw4cQI0qcSLGixYsQIwAAOw==">
+</td></tr>
+</tbody>
+</table>
+<pre>Remote Text Box: <input type="text" size="1" maxlength="1" onkeyup="remoteBox(event); this.select();"></pre>
+<pre>Search Text Box: <input type="text" size="1" maxlength="1" onkeyup="searchBox(event); this.select();"></pre>
+<br>
+<input value="Show/Hide Search Keypad" onclick="ShowHideSearchKeypad();" type="button">
+<div id="SearchKeypad" style="display: none;">
+<input value=" Delete " onclick="keypress('Backspace');" type="button">&nbsp;
+<input value=" Space " onclick="keypress('Lit_%20');" type="button">
+&nbsp;
+<input value=" Enter " onclick="keypress('Enter');" type="button">
+<table summary="Search Letters">
+<tbody>
+<tr>
+<td align="center"><input value="a" onclick="keypress('Lit_a');" type="button">
+</td>
+<td align="center"><input value="b" onclick="keypress('Lit_b');" type="button">
+</td>
+<td align="center"><input value="c" onclick="keypress('Lit_c');" type="button">
+</td>
+<td align="center"><input value="d" onclick="keypress('Lit_d');" type="button">
+</td>
+<td align="center"><input value="e" onclick="keypress('Lit_e');" type="button">
+</td>
+<td align="center"><input value="f" onclick="keypress('Lit_f');" type="button">
+</td>
+</tr>
+<tr>
+<td align="center"><input value="g" onclick="keypress('Lit_g');" type="button">
+</td>
+<td align="center"><input value="h" onclick="keypress('Lit_h');" type="button">
+</td>
+<td align="center"><input value="i" onclick="keypress('Lit_i');" type="button">
+</td>
+<td align="center"><input value="j" onclick="keypress('Lit_j');" type="button">
+</td>
+<td align="center"><input value="k" onclick="keypress('Lit_k');" type="button">
+</td>
+<td align="center"><input value="l" onclick="keypress('Lit_l');" type="button">
+</td>
+</tr>
+<tr>
+<td align="center"><input value="m" onclick="keypress('Lit_m');" type="button">
+</td>
+<td align="center"><input value="n" onclick="keypress('Lit_n');" type="button">
+</td>
+<td align="center"><input value="o" onclick="keypress('Lit_o');" type="button">
+</td>
+<td align="center"><input value="p" onclick="keypress('Lit_p');" type="button">
+</td>
+<td align="center"><input value="q" onclick="keypress('Lit_q');" type="button">
+</td>
+<td align="center"><input value="r" onclick="keypress('Lit_r');" type="button">
+</td>
+</tr>
+<tr>
+<td align="center"><input value="s" onclick="keypress('Lit_s');" type="button">
+</td>
+<td align="center"><input value="t" onclick="keypress('Lit_t');" type="button">
+</td>
+<td align="center"><input value="u" onclick="keypress('Lit_u');" type="button">
+</td>
+<td align="center"><input value="v" onclick="keypress('Lit_v');" type="button">
+</td>
+<td align="center"><input value="w" onclick="keypress('Lit_w');" type="button">
+</td>
+<td align="center"><input value="x" onclick="keypress('Lit_x');" type="button">
+</td>
+</tr>
+<tr>
+<td align="center"><input value="y" onclick="keypress('Lit_y');" type="button">
+</td>
+<td align="center"><input value="z" onclick="keypress('Lit_z');" type="button">
+</td>
+<td align="center"><input value="1" onclick="keypress('Lit_1');" type="button">
+</td>
+<td align="center"><input value="2" onclick="keypress('Lit_2');" type="button">
+</td>
+<td align="center"><input value="3" onclick="keypress('Lit_3');" type="button">
+</td>
+<td align="center"><input value="4" onclick="keypress('Lit_4');" type="button">
+</td>
+</tr>
+<tr>
+<td align="center"><input value="5" onclick="keypress('Lit_5');" type="button">
+</td>
+<td align="center"><input value="6" onclick="keypress('Lit_6');" type="button">
+</td>
+<td align="center"><input value="7" onclick="keypress('Lit_7');" type="button">
+</td>
+<td align="center"><input value="8" onclick="keypress('Lit_8');" type="button">
+</td>
+<td align="center"><input value="9" onclick="keypress('Lit_9');" type="button">
+</td>
+<td align="center"><input value="0" onclick="keypress('Lit_0');" type="button">
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<input value="Show/Hide Instructions" onclick="ShowHideInstructions();" type="button">
+</form>
+</div>
+<div id="Instructions" style="display: none;">
+<b>Instructions:</b><br>
+This web page has been designed to allow the Google Chrome web browser to control the Roku media player.  If you do not have either Google Chrome or a Roku media player then this web page will be of no use to you.  You can <a href="http://google.com/chrome">download Chrome web browser from Google</a> and the Roku media player is available for purchase from <a href="http://roku.com">Roku.com</a>.
+<p>
+Before you start using this web page, get the IP address of your Roku player.  This can be found in the Roku under the Roku Player Settings by selecting "player info."  Once you have the IP address, type it into the text box at the top of the Roku Remote web page.  Then click the "Set IP Address" button.  If you set it correctly then you should now be able to use the remote buttons to control your Roku.
+<p>
+The "Set Icon Size" will let you set the percentage size you want the icon symbols to be re-sized at.  By default, the icons are set to 100% but you can make them larger or smaller to better fit your screen.
+<p>
+The "Text/Icons" button can toggle the remote control buttons from being symbols to being text buttons.  Pressing the "Text/Icons" button can then switch it back from "Text/Icons" back to icons.
+<p>
+Clicking on the remote buttons should have the same effect as using the Roku IR (InfraRed) remote buttons.  More information about the Roku remote control can be found on the <a href="http://support.roku.com/">Roku Support web page</a>.
+<p>
+If you have the cursor in focus in the "Remote Text Box" then you can use the keyboard as a Roku remote.  A map between keyboard keys and Roku remote functions are provided at the end of the instructions.
+<p>
+If the "Search Text Box" has a cursor in focus then letters, numbers, space and backspace will be sent to the Roku.  This is useful if a Roku channel is currently on a Search screen.  Instead of using the on-screen keys, you should be able to use the Search Text Box to type on the computer keyboard normally.
+<p>
+There is also an option to display a "Search Keypad" which might be helpful for some tablet users.  If you are having trouble using the "Search Text Box" then you may want to consider using the Search Keypad option instead.
+<p>
+The "Remote Text Box" command keys are as follows:
+<ul>
+<li>1 - Go back
+<li>3 - Home
+<li>2 - Up
+<li>Q - Left
+<li>E - Right
+<li>S - Down
+<li>W - Select/OK
+<li>A - Instant Replay
+<li>D - Options/Info
+<li>Z - Rewind
+<li>X - Play/Pause
+<li>C - Fast Forward
+</ul>
+<p>
+<hr>
+<b>Important Note:</b><br>
+Note: "Roku" is a trademark of Roku, Inc.  This web page was created
+independent of Roku, Inc.  The creators of the Roku media player do not
+endorse or support this web page.  Roku, Inc. does provide online forums to
+discuess the Roku media player.  These forums include discussion of
+third-party works similar to this web page.  Any discussion on the forum about
+this web page does not imply that Roku endorses or offically supports this
+web page.
+<!-- START License START -->
+<hr>
+<b>License Terms:</b><br>
+Roku Remote web page for Google Chrome web browser<br>
+Copyright 2010 Ben Galliart &lt;bgallia@gmail.com&gt;. All rights reserved.
+<p>
+Redistribution and use in source and binary forms, with or without 
+modification, are permitted provided that the following conditions are met:
+<p>
+<ol>
+<li> Redistributions of source code must retain the above copyright notice, 
+this list of conditions and the following disclaimer.
+<li> Redistributions in binary form must reproduce the above copyright 
+notice, this list of conditions and the following disclaimer in the 
+documentation and/or other materials provided with the distribution.
+</ol>
+<p>
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR IMPLIED
+WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF 
+MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO 
+EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, 
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT 
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, 
+OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
+LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
+NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
+EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+<hr>
+<!--  END  License  END  -->
+</div>
+<div align="right">
+Roku Remote for Chrome<br>
+version 0.3 beta
+</div>
+<div id="iform">
+<form id="rokupost" method="post" target="rokuresponse"></form>
+</div>
+<iframe id="rokuresponse" name="rokuresponse" style="display: none;"></iframe>
+</body></html>
+
