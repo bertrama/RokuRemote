@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<div id="demo">
+<h1>Roku Remote</h1>
+<button type="button" onclick="rokuSend('home')">Home</button>
+
+<button type="button" onclick="rokuSend('up')">Up</button>
+<button type="button" onclick="rokuSend('down')">Down</button>
+<button type="button" onclick="rokuSend('left')">Left</button>
+<button type="button" onclick="rokuSend('right')">Right</button>
+
+<button type="button" onclick="rokuSend('select')">Select</button>
+<button type="button" onclick="rokuSend('back')">Back</button>
+
+
+</div>
+
+<script>
+function rokuSend(sendVal) {
+  var xhttp = new XMLHttpRequest();
+  xhttp.open("POST", "http://192.168.1.24:8060/keypress/" + sendVal , true);
+  //xhttp.setRequestHeader("Access-Control-Allow-Origin", "i_do_what_i_want");
+  xhttp.send();
+}
+</script>
+
+</html>
