@@ -99,6 +99,11 @@
     </div>
 
 
+    <form name="RokuRemote">
+      <input name="remotewide" value="Home" onclick="rokuSend('Home');">
+
+    </form>
+
   </body>
 
   <script>
@@ -107,7 +112,7 @@
 
     function rokuSend(sendVal) {
       xhttp.open("POST", rokuAddress + "keypress/" + sendVal , true);
-      xhttp.setRequestHeader('Access-Control-Allow-Origin', '*');
+      //xhttp.setRequestHeader('Access-Control-Allow-Origin', '*');
       xhttp.send();
     }
   </script>
